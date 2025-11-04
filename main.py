@@ -1,20 +1,23 @@
-import csv
+import json
 
-# Read the original CSV
-with open('books.csv', 'r') as file:
-    csv_reader = csv.DictReader(file)
-    books = list(csv_reader)
+# Read JSON
+with open('books.json', 'r') as file:
+    data = json.load(file)
 
-# Filter for high-rated books (rating >= 4)
-high_rated = [book for book in books if int(book['rating']) >= 4]
+# Filter for programming books
+programming_books = [
+    book for book in data['books'] 
+    if 'programming' in book['tags']
+]
 
-# Write to new CSV
-with open('high_rated_books.csv', 'w', newline='') as file:
-    fieldnames = ['title', 'author', 'year', 'rating']
-    csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
+# Create new structure
+output = {
+    'books': programming_books,
+    'count': len(programming_books)
+}
 
-    csv_writer.writeheader()
-    for book in high_rated:
-        csv_writer.writerow(book)
+# Write to new JSON file
+with open('programming_books.json', 'w') as file:
+    json.dump(output, file, indent=2)
 
-print(f"Created high_rated_books.csv with {len(high_rated)} books")
+print(f"Created programming_books.json with {output['count']} books")

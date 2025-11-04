@@ -1,0 +1,25 @@
+{
+  "books": [
+    {
+      "title": "The Pragmatic Programmer",
+      "author": "Andy Hunt",
+      "year": 1999,
+      "rating": 5,
+      "tags": ["programming", "best-practices"]
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert Martin",
+      "year": 2008,
+      "rating": 4,
+      "tags": ["programming", "refactoring"]
+    },
+    {
+      "title": "Deep Learning",
+      "author": "Ian Goodfellow",
+      "year": 2016,
+      "rating": 3,
+      "tags": ["ai", "ml", "neural-networks"]
+    }
+  ]
+}
