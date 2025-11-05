@@ -1,23 +1,12 @@
-import json
+import csv
 
-# Read JSON
-with open('books.json', 'r') as file:
-    data = json.load(file)
+filename = input("Enter CSV filename: ")
 
-# Filter for programming books
-programming_books = [
-    book for book in data['books'] 
-    if 'programming' in book['tags']
-]
+try:
+    with open(filename, 'r') as file:
+        data = csv.DictReader(file)
+        rows = list(data)  # Convert to list to count
+        print(f"Successfully loaded: {len(rows)} rows")
 
-# Create new structure
-output = {
-    'books': programming_books,
-    'count': len(programming_books)
-}
-
-# Write to new JSON file
-with open('programming_books.json', 'w') as file:
-    json.dump(output, file, indent=2)
-
-print(f"Created programming_books.json with {output['count']} books")
+except FileNotFoundError:  
+    print(f"Error: {filename} doesn't exist")
