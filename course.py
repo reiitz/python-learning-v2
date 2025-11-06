@@ -13,15 +13,8 @@ class Course:
         return 0
     
     return sum(s.calculate_average() for s in self.students) / len(self.students)
-    
-        # Calculate the total average of all students in the course
-total = 0
-for student in self.students:
-        total += student.calculate_average()
 
-
-     return total / len(self.students)
-  #Test it
+# Test it
 chemistry = Course("Chemistry 101")
 
 #Create some students and add them to the course 
