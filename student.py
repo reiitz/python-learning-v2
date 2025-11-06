@@ -14,20 +14,21 @@ class Student:
       if len(self.grades) == 0:
           return 0
       return sum(self.grades) / len(self.grades)
-  # Create two student objects (two peaches from the same seed)
+
+# Create two student objects (two peaches from the same seed)
 student1 = Student("Chiamaka", 16)
 student2 = Student("Tunde", 17)
 
-  # Add grades to Chiamaka
+# Add grades to Chiamaka
 student1.add_grade(85)
 student1.add_grade(90)
 student1.add_grade(78)
 
-  # Add grades to Tunde
+# Add grades to Tunde
 student2.add_grade(92)
 student2.add_grade(88)
 
-  # Calculate averages
+# Calculate averages
 print(f"{student1.name}'s average: {student1.calculate_average()}")
 print(f"{student2.name}'s average: {student2.calculate_average()}")
 student1.add_grade(95)
