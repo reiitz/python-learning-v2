@@ -9,11 +9,14 @@ class Course:
       self.students.append(student)
 
   def get_class_average(self):
-     if len(self.students) == 0:
+    if len(self.students) == 0:
         return 0
+    
+    return sum(s.calculate_average() for s in self.students) / len(self.students)
+    
         # Calculate the total average of all students in the course
-     total = 0
-     for student in self.students:
+total = 0
+   for student in self.students:
         total += student.calculate_average()
 
 
