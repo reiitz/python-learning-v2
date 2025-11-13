@@ -1,21 +1,21 @@
 from llm_judge_models import Prompt, Response, Judge
 from llm_client import LLMClient
 
-def run_evaluation(prompt_text, criteria_list):
+def run_evaluation_with_llm_judge(prompt_text, criteria_list):
     """
-    Complete workflow: prompt -> LLM response -> evaluation
+    Complete workflow with LLM-as-judge for automated scoring
     """
     print(f"📝 Prompt: {prompt_text}\n")
 
-    # 1. Save prompt to database
+    # 1. Save prompt
     prompt = Prompt(prompt_text, category="test")
     prompt_id = prompt.save()
     print(f"✓ Prompt saved (ID: {prompt_id})")
 
-    # 2. Get LLM response
+    # 2. Get response from Claude
     client = LLMClient()
     response_text = client.get_response(prompt_text)
-    print(f"\n🤖 Claude Response:\n{response_text}\n")
+    print(f"\n🤖 Claude Response:\n{response_text[:200]}...\n")
 
     # 3. Save response
     response = Response(
@@ -26,30 +26,36 @@ def run_evaluation(prompt_text, criteria_list):
     response_id = response.save()
     print(f"✓ Response saved (ID: {response_id})")
 
-    # 4. Manual scoring (we'll automate this next)
-    print(f"\n⚖️  Now scoring the response...")
+    # 4. Use LLM to judge the response
+    print(f"\n⚖️  Using Claude to evaluate on {len(criteria_list)} criteria...\n")
 
-    # For now, let's use fixed scores as an example
     judge = Judge(criteria_list)
-
-    # You would normally evaluate these manually or with another LLM
-    # For demo, using placeholder scores
     scores = {}
+
     for criterion in criteria_list:
-        scores[criterion] = (8, f"Good performance on {criterion}")
+        print(f"  Evaluating {criterion}...", end=" ")
+        score, feedback = judge.llm_evaluate(
+            response_text=response_text,
+            prompt_text=prompt_text,
+            criteria=criterion,
+            llm_client=client
+        )
+        scores[criterion] = (score, feedback)
+        print(f"{score}/10")
+        print(f"    → {feedback}")
 
+    # 5. Save all evaluations
     eval_ids = judge.evaluate_response(response_id, scores)
-    print(f"✓ Created {len(eval_ids)} evaluations")
+    print(f"\n✓ Saved {len(eval_ids)} evaluations to database")
 
-    # Get average score
+    # 6. Calculate average
     avg = judge.get_average_score(response_id)
-    print(f"✓ Average score: {avg:.2f}/10")
+    print(f"✓ Overall Average Score: {avg:.2f}/10")
 
     return prompt_id, response_id
 
 if __name__ == "__main__":
-    # Test the full workflow
-    test_prompt = "Explain quantum entanglement in simple terms for a high school student"
-    criteria = ["clarity", "accuracy", "simplicity"]
+    test_prompt = "Explain blockchain technology to someone who knows nothing about computers"
+    criteria = ["clarity", "accuracy", "accessibility"]
 
-    run_evaluation(test_prompt, criteria)
+    run_evaluation_with_llm_judge(test_prompt, criteria)

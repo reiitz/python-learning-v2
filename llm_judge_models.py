@@ -120,60 +120,48 @@ class Judge:
 
         return result[0] if result[0] else 0
 
-# Test the classes
-if __name__ == "__main__":
-        # Create a prompt
-        prompt = Prompt("Explain quantum computing in simple terms", category="explanation")
-        prompt_id = prompt.save()
-        print(f"✓ Prompt saved with ID: {prompt_id}")
+    def llm_evaluate(self, response_text, prompt_text, criteria, llm_client, db_path='llm_judge.db'):
+        """
+        Use an LLM to evaluate a response
 
-        # Create a response
-        response = Response(
-            prompt_id=prompt_id,
-            llm_provider="test_llm",
-            response_text="Quantum computing uses quantum mechanics..."
-        )
-        response_id = response.save()
-        print(f"✓ Response saved with ID: {response_id}")
+        Args:
+            response_text: The response to evaluate
+            prompt_text: The original prompt
+            criteria: Single criterion to evaluate (e.g., "clarity")
+            llm_client: LLMClient instance to use for judging
 
-        # Use Judge to evaluate
-        judge = Judge(criteria_list=["clarity", "accuracy", "helpfulness"])
+        Returns:
+            tuple: (score, feedback)
+        """
+        judge_prompt = f"""You are evaluating an AI response based on the criterion: {criteria}
 
-        scores = {
-            "clarity": (8, "Clear explanation with good structure"),
-            "accuracy": (7, "Technically correct but simplified"),
-            "helpfulness": (9, "Very helpful for beginners")
-        }
+Original Prompt: {prompt_text}
 
-        eval_ids = judge.evaluate_response(response_id, scores)
-        print(f"✓ Created {len(eval_ids)} evaluations: {eval_ids}")
+Response to Evaluate:
+{response_text}
 
-        # Get average score
-        avg = judge.get_average_score(response_id)
-        print(f"✓ Average score: {avg:.2f}/10")
+Rate the response on {criteria} from 0-10 and provide brief feedback.
 
-# Test the classes
-if __name__ == "__main__":
-    # Create a prompt
-    prompt = Prompt("Explain quantum computing in simple terms", category="explanation")
-    prompt_id = prompt.save()
-    print(f"✓ Prompt saved with ID: {prompt_id}")
+Respond in exactly this format:
+Score: [number 0-10]
+Feedback: [one sentence]"""
 
-    # Create a response
-    response = Response(
-        prompt_id=prompt_id,
-        llm_provider="test_llm",
-        response_text="Quantum computing uses quantum mechanics..."
-    )
-    response_id = response.save()
-    print(f"✓ Response saved with ID: {response_id}")
+        llm_response = llm_client.get_response(judge_prompt, max_tokens=200)
 
-    # Create an evaluation
-    evaluation = Evaluation(
-        response_id=response_id,
-        criteria="clarity",
-        score=8,
-        feedback="Good explanation but could use more examples"
-    )
-    eval_id = evaluation.save()
-    print(f"✓ Evaluation saved with ID: {eval_id}")
+        # Parse the score and feedback
+        lines = llm_response.strip().split('\n')
+        score = None
+        feedback = None
+
+        for line in lines:
+            if line.startswith('Score:'):
+                try:
+                    score = int(line.split(':')[1].strip())
+                except:
+                    score = 5  # Default if parsing fails
+            elif line.startswith('Feedback:'):
+                feedback = line.split(':', 1)[1].strip()
+
+        return (score or 5, feedback or "No feedback provided")
+
+# Test removed - not needed anymore
